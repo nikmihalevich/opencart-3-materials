@@ -1,0 +1,134 @@
+{{ header }}
+<style>
+  .add-material-container {
+    text-align: right;
+  }
+  .add-material-btn {
+    margin: 10px 0;
+  }
+</style>
+{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+          <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+      <div class="pull-right">
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a>
+      </div>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+      <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+      </div>
+    {% endif %}
+    {% if success %}
+      <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+      </div>
+    {% endif %}
+    <div class="add-material-container">
+      <a href="{{ add }}" data-toggle="tooltip" title="{{ button_add }}" class="btn btn-primary add-material-btn">{{ add_category_btn }}</a>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-list"></i> {{ text_categories }}</h3>
+      </div>
+      <div class="panel-body">
+        <form action="{{ delete }}" method="post" enctype="multipart/form-data" id="form-information">
+          <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+              <thead>
+              <tr>
+                <td style="width: 1px;" class="text-center">{{ column_id }}</td>
+                <td class="text-left">{% if sort == 'id.title' %}
+                    <a href="{{ sort_title }}" class="{{ order|lower }}">{{ column_title_category }}</a>
+                  {% else %}
+                    <a href="{{ sort_title }}">{{ column_title_category }}</a>
+                  {% endif %}</td>
+                <td class="text-right">{% if sort == 'i.sort_order' %}
+                    <a href="{{ sort_sort_order }}" class="{{ order|lower }}">{{ column_sort_order }}</a>
+                  {% else %}
+                    <a href="{{ sort_sort_order }}">{{ column_sort_order }}</a>
+                  {% endif %}</td>
+                <td class="text-right">{{ column_action }}</td>
+              </tr>
+              </thead>
+              <tbody>
+              {% if materials_categories %}
+                {% for materials_category in materials_categories %}
+                  <tr>
+                    <td class="text-center">{# id #}</td>
+                    <td class="text-left">{{ materials_category.title }}</td>
+                    <td class="text-right">{{ materials_category.sort_order }}</td>
+                    <td class="text-right"><a href="{{ materials_category.edit }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a></td>
+                  </tr>
+                {% endfor %}
+              {% else %}
+                <tr>
+                  <td class="text-center" colspan="4">{{ text_no_results }}</td>
+                </tr>
+              {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="add-material-container">
+      <a href="{{ add }}" data-toggle="tooltip" title="{{ button_add }}" class="btn btn-primary add-material-btn">{{ add_material_btn }}</a>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-list"></i> {{ text_materials }}</h3>
+      </div>
+      <div class="panel-body">
+        <form action="{{ delete }}" method="post" enctype="multipart/form-data" id="form-information">
+          <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+              <thead>
+              <tr>
+                <td style="width: 1px;" class="text-center">{{ column_id }}</td>
+                <td class="text-left">{% if sort == 'id.title' %}
+                    <a href="{{ sort_title }}" class="{{ order|lower }}">{{ column_title_category }}</a>
+                  {% else %}
+                    <a href="{{ sort_title }}">{{ column_title_category }}</a>
+                  {% endif %}</td>
+                <td class="text-right">{% if sort == 'i.sort_order' %}
+                    <a href="{{ sort_sort_order }}" class="{{ order|lower }}">{{ column_sort_order }}</a>
+                  {% else %}
+                    <a href="{{ sort_sort_order }}">{{ column_sort_order }}</a>
+                  {% endif %}</td>
+                <td class="text-right">{{ column_action }}</td>
+              </tr>
+              </thead>
+              <tbody>
+              {% if materials_categories %}
+                {% for materials_category in materials_categories %}
+                  <tr>
+                    <td class="text-center">{# id #}</td>
+                    <td class="text-left">{{ materials_category.title }}</td>
+                    <td class="text-right">{{ materials_category.sort_order }}</td>
+                    <td class="text-right"><a href="{{ materials_category.edit }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a></td>
+                  </tr>
+                {% endfor %}
+              {% else %}
+                <tr>
+                  <td class="text-center" colspan="4">{{ text_no_results }}</td>
+                </tr>
+              {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{{ footer }}
