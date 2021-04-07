@@ -24,7 +24,7 @@
         <h3 class="panel-title"><i class="fa fa-pencil"></i> {{ text_form }}</h3>
       </div>
       <div class="panel-body">
-        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-materials-categories" class="form-horizontal">
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-materials-materials" class="form-horizontal">
           <ul class="nav nav-tabs">
             <li class="active"><a href="#tab-general" data-toggle="tab">{{ tab_general }}</a></li>
             <li><a href="#tab-data" data-toggle="tab">{{ tab_data }}</a></li>
@@ -43,7 +43,7 @@
                     <div class="form-group required">
                       <label class="col-sm-2 control-label" for="input-title{{ language.language_id }}">{{ entry_title_category }}</label>
                       <div class="col-sm-10">
-                        <input type="text" name="materials_categories_description[{{ language.language_id }}][title]" value="{{ information_description[language.language_id] ? information_description[language.language_id].title }}" placeholder="{{ entry_title_category }}" id="input-title{{ language.language_id }}" class="form-control" />
+                        <input type="text" name="materials_materials_description[{{ language.language_id }}][title]" value="{{ materials_materials_description[language.language_id] ? materials_materials_description[language.language_id].title }}" placeholder="{{ entry_title_category }}" id="input-title{{ language.language_id }}" class="form-control" />
                         {% if error_title[language.language_id] %}
                           <div class="text-danger">{{ error_title[language.language_id] }}</div>
                         {% endif %}
@@ -52,7 +52,7 @@
                     <div class="form-group required">
                       <label class="col-sm-2 control-label" for="input-description{{ language.language_id }}">{{ entry_description }}</label>
                       <div class="col-sm-10">
-                        <textarea name="materials_categories_description[{{ language.language_id }}][description]" placeholder="{{ entry_description }}" id="input-description{{ language.language_id }}" data-toggle="summernote" data-lang="{{ summernote }}" class="form-control">{{ information_description[language.language_id] ? information_description[language.language_id].description }}</textarea>
+                        <textarea name="materials_materials_description[{{ language.language_id }}][description]" placeholder="{{ entry_description }}" id="input-description{{ language.language_id }}" data-toggle="summernote" data-lang="{{ summernote }}" class="form-control">{{ materials_materials_description[language.language_id] ? materials_materials_description[language.language_id].description }}</textarea>
                         {% if error_description[language.language_id] %}
                           <div class="text-danger">{{ error_description[language.language_id] }}</div>
                         {% endif %}
@@ -61,7 +61,7 @@
                     <div class="form-group required">
                       <label class="col-sm-2 control-label" for="input-meta-title{{ language.language_id }}">{{ entry_meta_title }}</label>
                       <div class="col-sm-10">
-                        <input type="text" name="materials_categories_description[{{ language.language_id }}][meta_title]" value="{{ information_description[language.language_id] ? information_description[language.language_id].meta_title }}" placeholder="{{ entry_meta_title }}" id="input-meta-title{{ language.language_id }}" class="form-control" />
+                        <input type="text" name="materials_materials_description[{{ language.language_id }}][meta_title]" value="{{ materials_materials_description[language.language_id] ? materials_materials_description[language.language_id].meta_title }}" placeholder="{{ entry_meta_title }}" id="input-meta-title{{ language.language_id }}" class="form-control" />
                         {% if error_meta_title[language.language_id] %}
                           <div class="text-danger">{{ error_meta_title[language.language_id] }}</div>
                         {% endif %}
@@ -70,13 +70,13 @@
                     <div class="form-group">
                       <label class="col-sm-2 control-label" for="input-meta-description{{ language.language_id }}">{{ entry_meta_description }}</label>
                       <div class="col-sm-10">
-                        <textarea name="materials_categories_description[{{ language.language_id }}][meta_description]" rows="5" placeholder="{{ entry_meta_description }}" id="input-meta-description{{ language.language_id }}" class="form-control">{{ information_description[language.language_id] ? information_description[language.language_id].meta_description }}</textarea>
+                        <textarea name="materials_materials_description[{{ language.language_id }}][meta_description]" rows="5" placeholder="{{ entry_meta_description }}" id="input-meta-description{{ language.language_id }}" class="form-control">{{ materials_materials_description[language.language_id] ? materials_materials_description[language.language_id].meta_description }}</textarea>
                       </div>
                     </div>
                     <div class="form-group">
                       <label class="col-sm-2 control-label" for="input-meta-keyword{{ language.language_id }}">{{ entry_meta_keyword }}</label>
                       <div class="col-sm-10">
-                        <textarea name="materials_categories_description[{{ language.language_id }}][meta_keyword]" rows="5" placeholder="{{ entry_meta_keyword }}" id="input-meta-keyword{{ language.language_id }}" class="form-control">{{ information_description[language.language_id] ? information_description[language.language_id].meta_keyword }}</textarea>
+                        <textarea name="materials_materials_description[{{ language.language_id }}][meta_keyword]" rows="5" placeholder="{{ entry_meta_keyword }}" id="input-meta-keyword{{ language.language_id }}" class="form-control">{{ materials_materials_description[language.language_id] ? materials_materials_description[language.language_id].meta_keyword }}</textarea>
                       </div>
                     </div>
                   </div>
@@ -91,11 +91,11 @@
                     {% for store in stores %}
                       <div class="checkbox">
                         <label>
-                          {% if store.store_id in materials_categories_store %}
-                            <input type="checkbox" name="materials_categories_store[]" value="{{ store.store_id }}" checked="checked" />
+                          {% if store.store_id in materials_materials_description_store %}
+                            <input type="checkbox" name="materials_materials_store[]" value="{{ store.store_id }}" checked="checked" />
                             {{ store.name }}
                           {% else %}
-                            <input type="checkbox" name="materials_categories_store[]" value="{{ store.store_id }}" />
+                            <input type="checkbox" name="materials_materials_store[]" value="{{ store.store_id }}" />
                             {{ store.name }}
                           {% endif %}
                         </label>
@@ -155,8 +155,9 @@
                       <td class="text-left">{{ store.name }}</td>
                       <td class="text-left">
                         {% for language in languages %}
-                          <div class="input-group"><span class="input-group-addon"><img src="language/{{ language.code }}/{{ language.code }}.png" title="{{ language.name }}" /></span>
-                            <input type="text" name="materials_categories_seo_url[{{ store.store_id }}][{{ language.language_id }}]" value="{% if information_seo_url[store.store_id][language.language_id] %}{{ information_seo_url[store.store_id][language.language_id] }}{% endif %}" placeholder="{{ entry_keyword }}" class="form-control" />
+                          <div class="input-group">
+                            <span class="input-group-addon"><img src="language/{{ language.code }}/{{ language.code }}.png" title="{{ language.name }}" /></span>
+                            <input type="text" name="materials_materials_seo_url[{{ store.store_id }}][{{ language.language_id }}]" value="{% if materials_materials_seo_url[store.store_id][language.language_id] %}{{ materials_materials_seo_url[store.store_id][language.language_id] }}{% endif %}" placeholder="{{ entry_keyword }}" class="form-control" />
                           </div>
                           {% if error_keyword[store.store_id][language.language_id] %}
                             <div class="text-danger">{{ error_keyword[store.store_id][language.language_id] }}</div>
@@ -183,10 +184,10 @@
                   {% for store in stores %}
                     <tr>
                       <td class="text-left">{{ store.name }}</td>
-                      <td class="text-left"><select name="materials_categories_layout[{{ store.store_id }}]" class="form-control">
+                      <td class="text-left"><select name="materials_materials_layout[{{ store.store_id }}]" class="form-control">
                           <option value=""></option>
                           {% for layout in layouts %}
-                            {% if information_layout[store.store_id] and information_layout[store.store_id] == layout.layout_id %}
+                            {% if materials_materials_layout[store.store_id] and materials_materials_layout[store.store_id] == layout.layout_id %}
                               <option value="{{ layout.layout_id }}" selected="selected">{{ layout.name }}</option>
                             {% else %}
                               <option value="{{ layout.layout_id }}">{{ layout.name }}</option>

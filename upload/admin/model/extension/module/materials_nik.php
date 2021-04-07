@@ -48,7 +48,7 @@ class ModelExtensionModuleMaterialsNik extends Model {
         }
 
         if (isset($data['materials_categories_store'])) {
-            foreach ($data['information_store'] as $store_id) {
+            foreach ($data['materials_categories_store'] as $store_id) {
                 $this->db->query("INSERT INTO " . DB_PREFIX . "materials_categories_to_store SET materials_category_id = '" . (int)$materials_category_id . "', store_id = '" . (int)$store_id . "'");
             }
         }
@@ -78,7 +78,7 @@ class ModelExtensionModuleMaterialsNik extends Model {
     public function editMaterialsCategory($materials_category_id, $data) {
         $this->db->query("UPDATE " . DB_PREFIX . "materials_categories SET sort_order = '" . (int)$data['sort_order'] . "', bottom = '" . (isset($data['bottom']) ? (int)$data['bottom'] : 0) . "', status = '" . (int)$data['status'] . "' WHERE materials_category_id = '" . (int)$materials_category_id . "'");
 
-        $this->db->query("DELETE FROM " . DB_PREFIX . "information_description WHERE materials_category_id = '" . (int)$materials_category_id . "'");
+        $this->db->query("DELETE FROM " . DB_PREFIX . "materials_categories_description WHERE materials_category_id = '" . (int)$materials_category_id . "'");
 
         foreach ($data['materials_categories_description'] as $language_id => $value) {
             $this->db->query("INSERT INTO " . DB_PREFIX . "materials_categories_description SET materials_category_id = '" . (int)$materials_category_id . "', language_id = '" . (int)$language_id . "', title = '" . $this->db->escape($value['title']) . "', description = '" . $this->db->escape($value['description']) . "', meta_title = '" . $this->db->escape($value['meta_title']) . "', meta_description = '" . $this->db->escape($value['meta_description']) . "', meta_keyword = '" . $this->db->escape($value['meta_keyword']) . "'");
@@ -140,6 +140,10 @@ class ModelExtensionModuleMaterialsNik extends Model {
                 'mc.sort_order'
             );
 
+            if (isset($data['materials_category_id'])) {
+                $sql .= " AND mc.materials_category_id = '" . (int)$data['materials_category_id'] . "'";
+            }
+
             if (isset($data['sort']) && in_array($data['sort'], $sort_data)) {
                 $sql .= " ORDER BY " . $data['sort'];
             } else {
@@ -151,6 +155,7 @@ class ModelExtensionModuleMaterialsNik extends Model {
             } else {
                 $sql .= " ASC";
             }
+
 
             if (isset($data['start']) || isset($data['limit'])) {
                 if ($data['start'] < 0) {
