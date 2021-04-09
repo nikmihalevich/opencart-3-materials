@@ -9,9 +9,12 @@ $_['text_edit']        = 'Настройки модуля';
 $_['text_default']     = 'Основной магазин';
 $_['text_keyword']     = 'Должно быть уникальным на всю систему и без пробелов.';
 $_['text_categories']  = 'Категории';
+$_['text_category']    = 'Категория';
 $_['text_materials']   = 'Материалы';
 $_['text_add']         = 'Добавить';
 $_['text_edit']        = 'Редактирование';
+$_['text_list']        = 'Список';
+$_['text_table']       = 'Таблица';
 
 // Entry
 $_['entry_name']       = 'Название модуля';
@@ -40,13 +43,15 @@ $_['column_title_material']  = 'Название материала';
 
 // Entry
 $_['entry_title_category']   = 'Название категории';
+$_['entry_title_news']       = 'Название новости';
 $_['entry_description']      = 'Описание';
 $_['entry_meta_title']       = 'Мета-тег Title';
 $_['entry_meta_keyword']     = 'Мета-тег Keywords';
 $_['entry_meta_description'] = 'Мета-тег Description';
 $_['entry_store']            = 'Магазины';
 $_['entry_keyword']          = 'SEO URL';
-$_['entry_bottom']           = 'Отображать снизу';
+$_['entry_image']            = 'Изображение новости';
+$_['entry_display_type']     = 'Вид отображения';
 $_['entry_status']           = 'Статус';
 $_['entry_sort_order']       = 'Порядок сортировки';
 $_['entry_layout']           = 'Макет';

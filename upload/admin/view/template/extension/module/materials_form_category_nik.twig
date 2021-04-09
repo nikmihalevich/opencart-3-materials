@@ -105,17 +105,12 @@
                 </div>
               </div>
               <div class="form-group">
-                <label class="col-sm-2 control-label" for="input-bottom"><span data-toggle="tooltip" title="{{ help_bottom }}">{{ entry_bottom }}</span></label>
+                <label class="col-sm-2 control-label" for="input-display-type">{{ entry_display_type }}</label>
                 <div class="col-sm-10">
-                  <div class="checkbox">
-                    <label>
-                      {% if bottom %}
-                        <input type="checkbox" name="bottom" value="1" checked="checked" id="input-bottom" />
-                      {% else %}
-                        <input type="checkbox" name="bottom" value="1" id="input-bottom" />
-                      {% endif %}
-                    </label>
-                  </div>
+                  <select name="display_type" id="input-display-type" class="form-control">
+                      <option value="list" {% if display_type == 'list' %}selected="selected"{% endif %}>{{ text_list }}</option>
+                      <option value="table" {% if display_type == 'table' %}selected="selected"{% endif %}>{{ text_table }}</option>
+                  </select>
                 </div>
               </div>
               <div class="form-group">
@@ -130,12 +125,6 @@
                       <option value="0" selected="selected">{{ text_disabled }}</option>
                     {% endif %}
                   </select>
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="col-sm-2 control-label" for="input-sort-order">{{ entry_sort_order }}</label>
-                <div class="col-sm-10">
-                  <input type="text" name="sort_order" value="{{ sort_order }}" placeholder="{{ entry_sort_order }}" id="input-sort-order" class="form-control" />
                 </div>
               </div>
             </div>

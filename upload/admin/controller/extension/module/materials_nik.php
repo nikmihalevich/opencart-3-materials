@@ -140,12 +140,10 @@ class ControllerExtensionModuleMaterialsNik extends Controller {
         $this->load->model('extension/module/materials_nik');
         $this->load->model('setting/module');
 
-        if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validateCategoryForm()) {
-            $materials_category_id = $this->model_extension_module_materials_nik->addMaterialsCategory($this->request->post);
-            $module_info = $this->model_setting_module->getModule($this->request->get['module_id']);
-            $module_info['materials_category_id'] = $materials_category_id;
-
-            $this->model_setting_module->editModule($this->request->get['module_id'], $module_info);
+        if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validateMaterialForm()) {
+            $post = $this->request->post;
+            $post['materials_category_id'] = $this->request->get['materials_category_id'];
+            $this->model_extension_module_materials_nik->addMaterial($post);
 
             $this->session->data['success'] = $this->language->get('text_success');
 
@@ -176,8 +174,8 @@ class ControllerExtensionModuleMaterialsNik extends Controller {
 
         $this->load->model('extension/module/materials_nik');
 
-        if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validateCategoryForm()) {
-            $this->model_extension_module_materials_nik->editMaterialsCategory($this->request->get['materials_category_id'], $this->request->post);
+        if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validateMaterialForm()) {
+            $this->model_extension_module_materials_nik->editMaterial($this->request->get['material_id'], $this->request->post);
 
             $this->session->data['success'] = $this->language->get('text_success');
 
@@ -207,15 +205,9 @@ class ControllerExtensionModuleMaterialsNik extends Controller {
         $this->document->setTitle($this->language->get('heading_title'));
 
         $this->load->model('extension/module/materials_nik');
-        $this->load->model('setting/module');
 
-        if (isset($this->request->get['materials_category_id']) && $this->validateDelete()) {
-            $this->model_extension_module_materials_nik->deleteMaterialsCategory($this->request->get['materials_category_id']);
-
-            $module_info = $this->model_setting_module->getModule($this->request->get['module_id']);
-            unset($module_info['materials_category_id']);
-
-            $this->model_setting_module->editModule($this->request->get['module_id'], $module_info);
+        if (isset($this->request->get['material_id']) && $this->validateDelete()) {
+            $this->model_extension_module_materials_nik->deleteMaterial($this->request->get['material_id']);
 
             $this->session->data['success'] = $this->language->get('text_success');
 
@@ -323,7 +315,7 @@ class ControllerExtensionModuleMaterialsNik extends Controller {
         }
 
         if (isset($this->request->get['module_id']) && !empty($module_info['materials_category_id'])) {
-            $data['addMaterial'] = $this->url->link('extension/module/materials_nik/addMaterial', 'user_token=' . $this->session->data['user_token'] .  '&module_id=' . $this->request->get['module_id'], true);
+            $data['addMaterial'] = $this->url->link('extension/module/materials_nik/addMaterial', 'user_token=' . $this->session->data['user_token'] .  '&module_id=' . $this->request->get['module_id'] . '&materials_category_id=' . $module_info['materials_category_id'], true);
         }
 
         $data['module_id'] = isset($this->request->get['module_id']) ? $this->request->get['module_id'] : '';
@@ -345,11 +337,35 @@ class ControllerExtensionModuleMaterialsNik extends Controller {
                 $data['materials_categories'][] = array(
                     'materials_category_id' => $result['materials_category_id'],
                     'title'                 => $result['title'],
-                    'sort_order'            => $result['sort_order'],
                     'edit'                  => $this->url->link('extension/module/materials_nik/editCategory', 'user_token=' . $this->session->data['user_token'] . '&materials_category_id=' . $result['materials_category_id'] . '&module_id=' . $this->request->get['module_id'], true),
                     'delete'                => $this->url->link('extension/module/materials_nik/deleteCategory', 'user_token=' . $this->session->data['user_token'] . '&materials_category_id=' . $result['materials_category_id'] . '&module_id=' . $this->request->get['module_id'], true)
                 );
             }
+
+            $data['materials'] = array();
+
+            $results = $this->model_extension_module_materials_nik->getMaterials($filter_data);
+
+            foreach ($results as $result) {
+                $data['materials'][] = array(
+                    'material_id' => $result['materials_category_id'],
+                    'title'                 => $result['title'],
+                    'sort_order'            => $result['sort_order'],
+                    'edit'                  => $this->url->link('extension/module/materials_nik/editMaterial', 'user_token=' . $this->session->data['user_token'] . '&material_id=' . $result['material_id'] . '&module_id=' . $this->request->get['module_id'], true),
+                    'delete'                => $this->url->link('extension/module/materials_nik/deleteMaterial', 'user_token=' . $this->session->data['user_token'] . '&material_id=' . $result['material_id'] . '&module_id=' . $this->request->get['module_id'], true)
+                );
+            }
+
+            $url = '';
+
+            if ($order == 'ASC') {
+                $url .= '&order=DESC';
+            } else {
+                $url .= '&order=ASC';
+            }
+
+            $data['sort_title'] = $this->url->link('extension/module/materials_nik', 'user_token=' . $this->session->data['user_token'] . '&sort=md.title' . '&module_id=' . $this->request->get['module_id'] . $url, true);
+            $data['sort_sort_order'] = $this->url->link('extension/module/materials_nik', 'user_token=' . $this->session->data['user_token'] . '&sort=m.sort_order' . '&module_id=' . $this->request->get['module_id'] . $url, true);
         }
 
         $data['user_token'] = $this->session->data['user_token'];
@@ -369,6 +385,9 @@ class ControllerExtensionModuleMaterialsNik extends Controller {
         } else {
             $data['status'] = '';
         }
+
+        $data['sort'] = $sort;
+        $data['order'] = $order;
 
         $data['header'] = $this->load->controller('common/header');
         $data['column_left'] = $this->load->controller('common/column_left');
@@ -458,7 +477,7 @@ class ControllerExtensionModuleMaterialsNik extends Controller {
 
 
         if (isset($this->request->get['materials_category_id']) && ($this->request->server['REQUEST_METHOD'] != 'POST')) {
-            $information_info = $this->model_extension_module_materials_nik->getMaterialsCategory($this->request->get['materials_category_id']);
+            $materials_category_info = $this->model_extension_module_materials_nik->getMaterialsCategory($this->request->get['materials_category_id']);
         }
 
         $data['user_token'] = $this->session->data['user_token'];
@@ -501,28 +520,20 @@ class ControllerExtensionModuleMaterialsNik extends Controller {
             $data['materials_categories_store'] = array(0);
         }
 
-        if (isset($this->request->post['bottom'])) {
-            $data['bottom'] = $this->request->post['bottom'];
-        } elseif (!empty($information_info)) {
-            $data['bottom'] = $information_info['bottom'];
+        if (isset($this->request->post['display_type'])) {
+            $data['display_type'] = $this->request->post['display_type'];
+        } elseif (!empty($materials_category_info)) {
+            $data['display_type'] = $materials_category_info['display_type'];
         } else {
-            $data['bottom'] = 0;
+            $data['display_type'] = 'list';
         }
 
         if (isset($this->request->post['status'])) {
             $data['status'] = $this->request->post['status'];
-        } elseif (!empty($information_info)) {
-            $data['status'] = $information_info['status'];
+        } elseif (!empty($materials_category_info)) {
+            $data['status'] = $materials_category_info['status'];
         } else {
             $data['status'] = true;
-        }
-
-        if (isset($this->request->post['sort_order'])) {
-            $data['sort_order'] = $this->request->post['sort_order'];
-        } elseif (!empty($information_info)) {
-            $data['sort_order'] = $information_info['sort_order'];
-        } else {
-            $data['sort_order'] = '';
         }
 
         if (isset($this->request->post['materials_categories_seo_url'])) {
@@ -534,7 +545,7 @@ class ControllerExtensionModuleMaterialsNik extends Controller {
         }
 
         if (isset($this->request->post['materials_categories_layout'])) {
-            $data['information_layout'] = $this->request->post['materials_categories_layout'];
+            $data['materials_categories_layout'] = $this->request->post['materials_categories_layout'];
         } elseif (isset($this->request->get['materials_category_id'])) {
             $data['materials_categories_layout'] = $this->model_extension_module_materials_nik->getMaterialsCategoryLayouts($this->request->get['materials_category_id']);
         } else {
@@ -611,17 +622,17 @@ class ControllerExtensionModuleMaterialsNik extends Controller {
             'href' => $this->url->link('extension/module/materials_nik', 'user_token=' . $this->session->data['user_token'] . $url, true)
         );
 
-        if (!isset($this->request->get['materials_material_id'])) {
+        if (!isset($this->request->get['material_id'])) {
             if (isset($this->request->get['module_id'])) {
-                $data['action'] = $this->url->link('extension/module/materials_nik/addMaterial', 'user_token=' . $this->session->data['user_token'] . '&module_id=' . $this->request->get['module_id'] . $url, true);
+                $data['action'] = $this->url->link('extension/module/materials_nik/addMaterial', 'user_token=' . $this->session->data['user_token'] . '&materials_category_id=' . $this->request->get['materials_category_id']  . '&module_id=' . $this->request->get['module_id'] . $url, true);
             } else {
-                $data['action'] = $this->url->link('extension/module/materials_nik/addMaterial', 'user_token=' . $this->session->data['user_token'] . $url, true);
+                $data['action'] = $this->url->link('extension/module/materials_nik/addMaterial', 'user_token=' . $this->session->data['user_token'] . '&materials_category_id=' . $this->request->get['materials_category_id']  . $url, true);
             }
         } else {
             if (isset($this->request->get['module_id'])) {
-                $data['action'] = $this->url->link('extension/module/materials_nik/editMaterial', 'user_token=' . $this->session->data['user_token'] . '&materials_material_id=' . $this->request->get['materials_material_id'] . '&module_id=' . $this->request->get['module_id'] . $url, true);
+                $data['action'] = $this->url->link('extension/module/materials_nik/editMaterial', 'user_token=' . $this->session->data['user_token'] . '&material_id=' . $this->request->get['material_id'] . '&module_id=' . $this->request->get['module_id'] . $url, true);
             } else {
-                $data['action'] = $this->url->link('extension/module/materials_nik/editMaterial', 'user_token=' . $this->session->data['user_token'] . '&materials_material_id=' . $this->request->get['materials_material_id'] . $url, true);
+                $data['action'] = $this->url->link('extension/module/materials_nik/editMaterial', 'user_token=' . $this->session->data['user_token'] . '&material_id=' . $this->request->get['material_id'] . $url, true);
             }
         }
 
@@ -631,18 +642,26 @@ class ControllerExtensionModuleMaterialsNik extends Controller {
             $data['cancel'] = $this->url->link('extension/module/materials_nik', 'user_token=' . $this->session->data['user_token'] . $url, true);
         }
 
+        if (isset($this->request->get['materials_category_id']) && ($this->request->server['REQUEST_METHOD'] != 'POST')) {
+            $data['materials_category_info'] = $this->model_extension_module_materials_nik->getMaterialsCategoriesDescriptions($this->request->get['materials_category_id']);
+        }
+
+        if (isset($this->request->get['material_id']) && ($this->request->server['REQUEST_METHOD'] != 'POST')) {
+            $material_info = $this->model_extension_module_materials_nik->getMaterial($this->request->get['material_id']);
+        }
+
         $data['user_token'] = $this->session->data['user_token'];
 
         $this->load->model('localisation/language');
 
         $data['languages'] = $this->model_localisation_language->getLanguages();
 
-        if (isset($this->request->post['materials_categories_description'])) {
-            $data['materials_categories_description'] = $this->request->post['materials_categories_description'];
-        } elseif (isset($this->request->get['materials_category_id'])) {
-            $data['materials_categories_description'] = $this->model_extension_module_materials_nik->getMaterialsCategoriesDescriptions($this->request->get['materials_category_id']);
+        if (isset($this->request->post['materials_description'])) {
+            $data['materials_description'] = $this->request->post['materials_description'];
+        } elseif (isset($this->request->get['material_id'])) {
+            $data['materials_description'] = $this->model_extension_module_materials_nik->getMaterialDescriptions($this->request->get['material_id']);
         } else {
-            $data['materials_categories_description'] = array();
+            $data['materials_description'] = array();
         }
 
         $this->load->model('setting/store');
@@ -663,53 +682,60 @@ class ControllerExtensionModuleMaterialsNik extends Controller {
             );
         }
 
-        if (isset($this->request->post['materials_categories_store'])) {
-            $data['materials_categories_store'] = $this->request->post['materials_categories_store'];
-        } elseif (isset($this->request->get['materials_category_id'])) {
-            $data['materials_categories_store'] = $this->model_extension_module_materials_nik->getMaterialsCategoryStores($this->request->get['materials_category_id']);
+        if (isset($this->request->post['materials_store'])) {
+            $data['materials_store'] = $this->request->post['materials_store'];
+        } elseif (isset($this->request->get['material_id'])) {
+            $data['materials_store'] = $this->model_extension_module_materials_nik->getMaterialStores($this->request->get['material_id']);
         } else {
-            $data['materials_categories_store'] = array(0);
+            $data['materials_store'] = array(0);
         }
 
-        if (isset($this->request->post['bottom'])) {
-            $data['bottom'] = $this->request->post['bottom'];
-        } elseif (!empty($information_info)) {
-            $data['bottom'] = $information_info['bottom'];
+        $this->load->model('tool/image');
+
+        if (isset($this->request->post['image'])) {
+            $data['image'] = $this->request->post['image'];
+        } elseif (!empty($material_info)) {
+            $data['image'] = $material_info['image'];
         } else {
-            $data['bottom'] = 0;
+            $data['image'] = $this->model_tool_image->resize('no_image.png', 100, 100);
         }
+
+        $data['thumb'] = $data['image'] ? $this->model_tool_image->resize($data['image'], 100, 100) : $this->model_tool_image->resize('no_image.png', 100, 100);
 
         if (isset($this->request->post['status'])) {
             $data['status'] = $this->request->post['status'];
-        } elseif (!empty($information_info)) {
-            $data['status'] = $information_info['status'];
+        } elseif (!empty($material_info)) {
+            $data['status'] = $material_info['status'];
         } else {
             $data['status'] = true;
         }
 
         if (isset($this->request->post['sort_order'])) {
             $data['sort_order'] = $this->request->post['sort_order'];
-        } elseif (!empty($information_info)) {
-            $data['sort_order'] = $information_info['sort_order'];
+        } elseif (!empty($material_info)) {
+            $data['sort_order'] = $material_info['sort_order'];
         } else {
             $data['sort_order'] = '';
         }
 
-        if (isset($this->request->post['materials_categories_seo_url'])) {
-            $data['materials_categories_seo_url'] = $this->request->post['materials_categories_seo_url'];
-        } elseif (isset($this->request->get['materials_category_id'])) {
-            $data['materials_categories_seo_url'] = $this->model_extension_module_materials_nik->getMaterialsCategorySeoUrls($this->request->get['materials_category_id']);
+        if (isset($this->request->post['materials_seo_url'])) {
+            $data['materials_seo_url'] = $this->request->post['materials_seo_url'];
+        } elseif (isset($this->request->get['material_id'])) {
+            $data['materials_seo_url'] = $this->model_extension_module_materials_nik->getMaterialSeoUrls($this->request->get['material_id']);
         } else {
-            $data['materials_categories_seo_url'] = array();
+            $data['materials_seo_url'] = array();
         }
 
-        if (isset($this->request->post['materials_categories_layout'])) {
-            $data['information_layout'] = $this->request->post['materials_categories_layout'];
-        } elseif (isset($this->request->get['materials_category_id'])) {
-            $data['materials_categories_layout'] = $this->model_extension_module_materials_nik->getMaterialsCategoryLayouts($this->request->get['materials_category_id']);
+        if (isset($this->request->post['materials_layout'])) {
+            $data['materials_layout'] = $this->request->post['materials_layout'];
+        } elseif (isset($this->request->get['material_id'])) {
+            $data['materials_layout'] = $this->model_extension_module_materials_nik->getMaterialsCategoryLayouts($this->request->get['material_id']);
         } else {
-            $data['materials_categories_layout'] = array();
+            $data['materials_layout'] = array();
         }
+
+
+        $data['img_placeholder'] = $this->model_tool_image->resize('no_image.png', 100, 100);
 
         $this->load->model('design/layout');
 
@@ -719,7 +745,7 @@ class ControllerExtensionModuleMaterialsNik extends Controller {
         $data['column_left'] = $this->load->controller('common/column_left');
         $data['footer'] = $this->load->controller('common/footer');
 
-        $this->response->setOutput($this->load->view('extension/module/materials_form_material_nik', $data));
+        $this->response->setOutput($this->load->view('extension/module/materials_form_nik', $data));
     }
 
     public function install() {
@@ -771,6 +797,54 @@ class ControllerExtensionModuleMaterialsNik extends Controller {
 
                         foreach ($seo_urls as $seo_url) {
                             if (($seo_url['store_id'] == $store_id) && (!isset($this->request->get['materials_category_id']) || ($seo_url['query'] != 'materials_category_id=' . $this->request->get['materials_category_id']))) {
+                                $this->error['keyword'][$store_id][$language_id] = $this->language->get('error_keyword');
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if ($this->error && !isset($this->error['warning'])) {
+            $this->error['warning'] = $this->language->get('error_warning');
+        }
+
+        return !$this->error;
+    }
+
+    protected function validateMaterialForm() {
+        if (!$this->user->hasPermission('modify', 'extension/module/materials_nik')) {
+            $this->error['warning'] = $this->language->get('error_permission');
+        }
+
+        foreach ($this->request->post['materials_description'] as $language_id => $value) {
+            if ((utf8_strlen($value['title']) < 1) || (utf8_strlen($value['title']) > 64)) {
+                $this->error['title'][$language_id] = $this->language->get('error_title');
+            }
+
+            if (utf8_strlen($value['description']) < 3) {
+                $this->error['description'][$language_id] = $this->language->get('error_description');
+            }
+
+            if ((utf8_strlen($value['meta_title']) < 1) || (utf8_strlen($value['meta_title']) > 255)) {
+                $this->error['meta_title'][$language_id] = $this->language->get('error_meta_title');
+            }
+        }
+
+        if ($this->request->post['materials_seo_url']) {
+            $this->load->model('design/seo_url');
+
+            foreach ($this->request->post['materials_seo_url'] as $store_id => $language) {
+                foreach ($language as $language_id => $keyword) {
+                    if (!empty($keyword)) {
+                        if (count(array_keys($language, $keyword)) > 1) {
+                            $this->error['keyword'][$store_id][$language_id] = $this->language->get('error_unique');
+                        }
+
+                        $seo_urls = $this->model_design_seo_url->getSeoUrlsByKeyword($keyword);
+
+                        foreach ($seo_urls as $seo_url) {
+                            if (($seo_url['store_id'] == $store_id) && (!isset($this->request->get['material_id']) || ($seo_url['query'] != 'material_id=' . $this->request->get['material_id']))) {
                                 $this->error['keyword'][$store_id][$language_id] = $this->language->get('error_keyword');
                             }
                         }
